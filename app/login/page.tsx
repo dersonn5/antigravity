@@ -49,7 +49,7 @@ export default function LoginPage() {
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=2574&auto=format&fit=crop')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
                 <div className="relative z-10 text-center space-y-6">
                     <div className="flex justify-center mb-8">
-                        <img src="/logo-white.png" alt="J.Alves Sales OS" className="h-24 object-contain" />
+                        <img src="/logo-white.png" alt="CORE" className="h-24 object-contain" />
                     </div>
                     <p className="text-emerald-100 text-lg max-w-md mx-auto leading-relaxed">
                         "A excelência não é um ato, mas um hábito. Transforme leads em parcerias duradouras."

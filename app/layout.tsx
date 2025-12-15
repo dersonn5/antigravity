@@ -13,7 +13,7 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
-  title: "J.Alves Sales OS",
+  title: "CORE",
   description: "Sistema de Gestão de Vendas",
 };
 export default function RootLayout({
