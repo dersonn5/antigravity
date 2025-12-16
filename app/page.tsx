@@ -566,11 +566,18 @@ export default function KanbanBoard() {
 
                                 <div className="flex items-start justify-between pl-2">
                                   <div className="flex flex-col gap-3 w-full">
-                                    <div className="flex items-center gap-2">
-                                      <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                                    <div className="flex items-center gap-2 flex-1">
+                                      <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs shrink-0">
                                         {lead.name.charAt(0).toUpperCase()}
                                       </div>
                                       <p className="font-bold text-foreground text-base line-clamp-1">{lead.name}</p>
+                                      <button
+                                        onClick={(e) => handleChatClick(e, lead)}
+                                        className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 hover:scale-110 transition-all shadow-sm ml-auto"
+                                        title="Abrir Chat"
+                                      >
+                                        <MessageCircle size={14} />
+                                      </button>
                                     </div>
 
                                     <div className="flex flex-col gap-1.5">
@@ -624,14 +631,7 @@ export default function KanbanBoard() {
                                         </svg>
                                       </a>
                                     )}
-                                    <button
-                                      onClick={(e) => handleChatClick(e, lead)}
-                                      className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sky-600 hover:bg-sky-200 hover:scale-110 transition-all shadow-sm"
-                                      title="Abrir Chat"
-                                    >
-                                      {/* Quick Chat Icon */}
-                                      <MessageCircle size={16} />
-                                    </button>
+
                                   </div>
                                 </div>
                               </div>
