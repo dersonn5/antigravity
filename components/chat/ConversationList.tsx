@@ -12,7 +12,7 @@ interface Conversation {
     unread_count: number
     platform: 'whatsapp' | 'instagram' | 'facebook'
     status: 'open' | 'closed'
-    leads: {
+    jalves_leads: {
         name: string
         avatar_url: string | null
     }
@@ -30,7 +30,7 @@ export default function ConversationList({ onSelectChat }: { onSelectChat: (id: 
                 .from('conversations')
                 .select(`
           *,
-          leads (name, avatar_url)
+          jalves_leads (name, avatar_url)
         `)
                 .order('last_message_at', { ascending: false })
 
@@ -97,7 +97,7 @@ export default function ConversationList({ onSelectChat }: { onSelectChat: (id: 
                             <div className="flex justify-between items-start mb-1">
                                 <div className="flex items-center gap-2">
                                     <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">
-                                        {chat.leads?.name || 'Lead Sem Nome'}
+                                        {chat.jalves_leads?.name || 'Lead Sem Nome'}
                                     </span>
                                     <div className="bg-gray-100 dark:bg-gray-700 p-1 rounded-full">
                                         {getIcon(chat.platform)}
