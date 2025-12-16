@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { supabase } from '@/lib/supabase'
 import { Send, Paperclip, Lock } from 'lucide-react'
 
 interface Message {
@@ -20,7 +20,7 @@ export default function ChatWindow({ conversationId }: ChatWindowProps) {
     const [messages, setMessages] = useState<Message[]>([])
     const [newMessage, setNewMessage] = useState('')
     const [isInternal, setIsInternal] = useState(false)
-    const supabase = createClientComponentClient()
+
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
@@ -99,10 +99,10 @@ export default function ChatWindow({ conversationId }: ChatWindowProps) {
                 {messages.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-[70%] rounded-lg p-3 shadow-sm relative ${msg.is_internal
-                                ? 'bg-yellow-100 border border-yellow-300 text-gray-800'
-                                : msg.direction === 'outbound'
-                                    ? 'bg-[#d9fdd3] dark:bg-emerald-900 text-gray-900 dark:text-gray-100'
-                                    : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                            ? 'bg-yellow-100 border border-yellow-300 text-gray-800'
+                            : msg.direction === 'outbound'
+                                ? 'bg-[#d9fdd3] dark:bg-emerald-900 text-gray-900 dark:text-gray-100'
+                                : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                             }`}>
                             {msg.is_internal && (
                                 <div className="flex items-center gap-1 text-xs text-yellow-600 font-bold mb-1 uppercase">

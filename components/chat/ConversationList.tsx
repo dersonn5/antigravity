@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { supabase } from '@/lib/supabase'
 import { Search, MessageCircle, Instagram, Facebook } from 'lucide-react'
 
 interface Conversation {
@@ -20,7 +20,7 @@ interface Conversation {
 
 export default function ConversationList({ onSelectChat }: { onSelectChat: (id: string) => void }) {
     const [conversations, setConversations] = useState<Conversation[]>([])
-    const supabase = createClientComponentClient()
+
 
     // Busca as conversas no banco
     useEffect(() => {
