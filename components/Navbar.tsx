@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, BarChart3, Trophy } from 'lucide-react'
+import { LayoutDashboard, BarChart3, Trophy, MessageSquare } from 'lucide-react'
 
 export function Navbar() {
     const pathname = usePathname()
@@ -11,6 +11,7 @@ export function Navbar() {
         { href: '/', label: 'Kanban', icon: LayoutDashboard },
         { href: '/analytics', label: 'Analytics', icon: BarChart3 },
         { href: '/ranking', label: 'Ranking', icon: Trophy },
+        { href: '/chat', label: 'Inbox', icon: MessageSquare },
     ]
 
     return (

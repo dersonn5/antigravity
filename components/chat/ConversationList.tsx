@@ -1,99 +1,125 @@
 'use client'
 
-import { useState } from 'react'
-import { Search } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { Search, MessageCircle, Instagram, Facebook } from 'lucide-react'
 
 interface Conversation {
     id: string
-    name: string
-    lastMessage: string
-    time: string
-    unread: number
-    avatar?: string
+    lead_id: string
+    last_message_content: string
+    last_message_at: string
+    unread_count: number
+    platform: 'whatsapp' | 'instagram' | 'facebook'
+    status: 'open' | 'closed'
+    leads: {
+        name: string
+        avatar_url: string | null
+    }
 }
 
-const MOCK_CONVERSATIONS: Conversation[] = [
-    {
-        id: '1',
-        name: 'Equipe de Vendas',
-        lastMessage: 'Vamos bater a meta hoje!',
-        time: '10:30',
-        unread: 2,
-    },
-    {
-        id: '2',
-        name: 'Suporte Técnico',
-        lastMessage: 'O sistema está estável.',
-        time: '09:15',
-        unread: 0,
+export default function ConversationList({ onSelectChat }: { onSelectChat: (id: string) => void }) {
+    const [conversations, setConversations] = useState<Conversation[]>([])
+    const supabase = createClientComponentClient()
+
+    // Busca as conversas no banco
+    useEffect(() => {
+        const fetchConversations = async () => {
+            // Busca conversas e os dados do Lead associado
+            const { data, error } = await supabase
+                .from('conversations')
+                .select(`
+          *,
+          leads (name, avatar_url)
+        `)
+                .order('last_message_at', { ascending: false })
+
+            if (error) {
+                console.error('Erro ao buscar conversas:', error)
+            } else {
+                setConversations(data as any)
+            }
+        }
+
+        fetchConversations()
+
+        // Inscreva-se no Realtime para atualizar a lista quando chegar msg nova
+        const channel = supabase
+            .channel('conversations_list')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'conversations' }, () => {
+                fetchConversations()
+            })
+            .subscribe()
+
+        return () => { supabase.removeChannel(channel) }
+    }, [])
+
+    const formatTime = (dateString: string) => {
+        if (!dateString) return ''
+        const date = new Date(dateString)
+        return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
     }
-]
 
-interface ConversationListProps {
-    onSelectChat: (chatId: string) => void
-}
-
-export default function ConversationList({ onSelectChat }: ConversationListProps) {
-    const [searchTerm, setSearchTerm] = useState('')
-    const [activeId, setActiveId] = useState<string | null>(null)
-
-    const handleSelect = (id: string) => {
-        setActiveId(id)
-        onSelectChat(id)
+    const getIcon = (platform: string) => {
+        switch (platform) {
+            case 'instagram': return <Instagram size={14} className="text-pink-600" />
+            case 'facebook': return <Facebook size={14} className="text-blue-600" />
+            default: return <MessageCircle size={14} className="text-green-600" />
+        }
     }
-
-    const filteredConversations = MOCK_CONVERSATIONS.filter(c =>
-        c.name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
 
     return (
-        <div className="flex flex-col h-full w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-                <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-4">Conversas</h2>
-                <div className="relative">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+        <div className="w-80 h-full border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col">
+            <div className="p-4 border-b border-gray-100 dark:border-gray-800">
+                <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Inbox</h2>
+                <div className="relative mb-4">
+                    <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
                     <input
                         type="text"
-                        placeholder="Buscar conversa..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-lg text-sm focus:ring-1 focus:ring-emerald-500 text-slate-900 dark:text-slate-100"
+                        placeholder="Buscar cliente..."
+                        className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     />
                 </div>
             </div>
 
             <div className="flex-1 overflow-y-auto">
-                {filteredConversations.map((chat) => (
-                    <button
-                        key={chat.id}
-                        onClick={() => handleSelect(chat.id)}
-                        className={`w-full p-4 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-100 dark:border-gray-800/50
-                            ${activeId === chat.id ? 'bg-emerald-50 dark:bg-emerald-900/20' : ''}
-                        `}
-                    >
-                        <div className="h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-200 font-medium">
-                            {chat.avatar ? (
-                                <img src={chat.avatar} alt={chat.name} className="h-full w-full rounded-full object-cover" />
-                            ) : (
-                                chat.name.charAt(0)
-                            )}
-                        </div>
-                        <div className="flex-1 text-left min-w-0">
-                            <div className="flex justify-between items-baseline mb-1">
-                                <span className="font-semibold text-sm text-slate-800 dark:text-gray-200 truncate">{chat.name}</span>
-                                <span className="text-xs text-gray-400 flex-shrink-0">{chat.time}</span>
+                {conversations.length === 0 ? (
+                    <div className="p-8 text-center text-gray-400">
+                        <p className="text-sm">Nenhuma conversa encontrada.</p>
+                    </div>
+                ) : (
+                    conversations.map((chat) => (
+                        <div
+                            key={chat.id}
+                            onClick={() => onSelectChat(chat.id)}
+                            className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer border-b border-gray-50 dark:border-gray-800 transition-colors relative"
+                        >
+                            <div className="flex justify-between items-start mb-1">
+                                <div className="flex items-center gap-2">
+                                    <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">
+                                        {chat.leads?.name || 'Lead Sem Nome'}
+                                    </span>
+                                    <div className="bg-gray-100 dark:bg-gray-700 p-1 rounded-full">
+                                        {getIcon(chat.platform)}
+                                    </div>
+                                </div>
+                                <span className="text-xs text-gray-400">
+                                    {formatTime(chat.last_message_at)}
+                                </span>
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                {chat.lastMessage}
-                            </p>
+                            <div className="flex justify-between items-end">
+                                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1 w-5/6">
+                                    {chat.last_message_content || 'Nova conversa'}
+                                </p>
+                                {chat.unread_count > 0 && (
+                                    <span className="min-w-[20px] h-5 px-1.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                                        {chat.unread_count}
+                                    </span>
+                                )}
+                            </div>
                         </div>
-                        {chat.unread > 0 && (
-                            <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
-                                {chat.unread}
-                            </span>
-                        )}
-                    </button>
-                ))}
+                    ))
+                )}
             </div>
         </div>
     )
