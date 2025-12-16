@@ -1,5 +1,6 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation' // Importação nova
 import { Sidebar } from '@/components/Sidebar'
 import ConversationList from '@/components/chat/ConversationList'
 import ChatWindow from '@/components/chat/ChatWindow'
@@ -7,18 +8,27 @@ import { MessageSquare } from 'lucide-react'
 
 export default function ChatPage() {
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
+    const searchParams = useSearchParams()
+
+    // Efeito Mágico: Se tiver ?id=... na URL, seleciona automaticamente
+    useEffect(() => {
+        const chatFromUrl = searchParams.get('id')
+        if (chatFromUrl) {
+            setSelectedChatId(chatFromUrl)
+        }
+    }, [searchParams])
 
     return (
         <div className="flex h-screen bg-gray-50 dark:bg-black overflow-hidden">
             <Sidebar />
             <div className="flex flex-1 h-full">
-                {/* Left Column: Inbox List */}
-                <div className="hidden md:block h-full border-r border-gray-200 dark:border-gray-800">
+                {/* Esquerda: Lista */}
+                <div className={`h-full border-r border-gray-200 dark:border-gray-800 ${selectedChatId ? 'hidden md:block' : 'w-full md:w-80'}`}>
                     <ConversationList onSelectChat={setSelectedChatId} />
                 </div>
 
-                {/* Center Column: Chat Window */}
-                <main className="flex-1 h-full bg-white dark:bg-gray-900 relative">
+                {/* Centro: Chat */}
+                <main className={`flex-1 h-full bg-white dark:bg-gray-900 relative ${!selectedChatId ? 'hidden md:block' : ''}`}>
                     {selectedChatId ? (
                         <ChatWindow conversationId={selectedChatId} />
                     ) : (
