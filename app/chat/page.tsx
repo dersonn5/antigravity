@@ -1,12 +1,12 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation' // Importação nova
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Sidebar } from '@/components/Sidebar'
 import ConversationList from '@/components/chat/ConversationList'
 import ChatWindow from '@/components/chat/ChatWindow'
 import { MessageSquare } from 'lucide-react'
 
-export default function ChatPage() {
+function ChatContent() {
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
     const searchParams = useSearchParams()
 
@@ -19,7 +19,7 @@ export default function ChatPage() {
     }, [searchParams])
 
     return (
-        <div className="flex h-screen bg-gray-50 dark:bg-black overflow-hidden">
+        <div className="flex h-screen bg-gray-50 dark:bg-black overflow-hidden relative">
             <Sidebar />
             <div className="flex flex-1 h-full">
                 {/* Esquerda: Lista */}
@@ -47,5 +47,13 @@ export default function ChatPage() {
                 </main>
             </div>
         </div>
+    )
+}
+
+export default function ChatPage() {
+    return (
+        <Suspense fallback={<div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">Carregando Inbox...</div>}>
+            <ChatContent />
+        </Suspense>
     )
 }
