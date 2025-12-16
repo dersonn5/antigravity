@@ -57,30 +57,42 @@ export default function KanbanBoard() {
 
   const handleQuickChat = async (leadId: string) => {
     try {
-      // 1. Check if conversation exists
-      const { data: existing } = await supabase
+      console.log('Starting chat for lead:', leadId)
+
+      // 1. Check existing
+      const { data: existing, error: findError } = await supabase
         .from('conversations')
         .select('id')
         .eq('lead_id', leadId)
-        .single()
+        .maybeSingle() // Use maybeSingle to avoid 406 errors
 
-      if (existing) {
-        router.push(`/chat?id=${existing.id}`)
+      if (findError) {
+        alert('Erro ao buscar chat: ' + findError.message)
         return
       }
 
-      // 2. Create if not exists
-      const { data: newChat, error } = await supabase
+      if (existing) {
+        window.location.href = `/chat?id=${existing.id}` // Force navigation
+        return
+      }
+
+      // 2. Create new
+      const { data: newChat, error: createError } = await supabase
         .from('conversations')
         .insert({ lead_id: leadId, status: 'open', platform: 'whatsapp' })
         .select()
         .single()
 
-      if (newChat) {
-        router.push(`/chat?id=${newChat.id}`)
+      if (createError) {
+        alert('Erro ao criar chat: ' + createError.message)
+        return
       }
-    } catch (err) {
-      console.error('Error opening chat:', err)
+
+      if (newChat) {
+        window.location.href = `/chat?id=${newChat.id}`
+      }
+    } catch (err: any) {
+      alert('Erro Crítico: ' + err.message)
     }
   }
 
@@ -563,15 +575,17 @@ export default function KanbanBoard() {
                                       </div>
                                       <p className="font-bold text-foreground text-base line-clamp-1">{lead.name}</p>
                                       <button
+                                        onPointerDown={(e) => e.stopPropagation()} // Stop drag immediately
                                         onMouseDown={(e) => e.stopPropagation()}
-                                        onClick={(e) => {
+                                        onClick={async (e) => {
                                           e.stopPropagation()
                                           e.preventDefault()
-                                          console.log('Chat button clicked for lead:', lead.id)
-                                          handleQuickChat(lead.id.toString())
+                                          // ALERT 1: Prove the button works
+                                          // alert('Debug: Botão clicado! Iniciando...'); 
+                                          await handleQuickChat(lead.id.toString())
                                         }}
-                                        className="ml-2 p-1.5 rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 z-50 cursor-pointer relative transition-colors"
-                                        title="Abrir Chat WhatsApp"
+                                        className="ml-2 p-1.5 rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 z-50 cursor-pointer transition-colors relative"
+                                        title="Chat"
                                       >
                                         <MessageCircle size={16} />
                                       </button>
