@@ -55,41 +55,32 @@ export default function KanbanBoard() {
   const [searchQuery, setSearchQuery] = useState('')
   const router = useRouter()
 
-  const handleChatClick = async (e: React.MouseEvent, lead: Lead) => {
-    e.stopPropagation()
+  const handleQuickChat = async (leadId: string) => {
     try {
       // 1. Check if conversation exists
-      const { data: existingConv } = await supabase
+      const { data: existing } = await supabase
         .from('conversations')
         .select('id')
-        .eq('lead_id', lead.id)
+        .eq('lead_id', leadId)
         .single()
 
-      if (existingConv) {
-        router.push(`/chat?id=${existingConv.id}`)
+      if (existing) {
+        router.push(`/chat?id=${existing.id}`)
         return
       }
 
-      // 2. Create new conversation if not exists
-      const { data: newConv, error } = await supabase
+      // 2. Create if not exists
+      const { data: newChat, error } = await supabase
         .from('conversations')
-        .insert({
-          lead_id: lead.id,
-          status: 'open',
-          platform: 'whatsapp'
-        })
+        .insert({ lead_id: leadId, status: 'open', platform: 'whatsapp' })
         .select()
         .single()
 
-      if (error) throw error
-
-      if (newConv) {
-        router.push(`/chat?id=${newConv.id}`)
+      if (newChat) {
+        router.push(`/chat?id=${newChat.id}`)
       }
-
-    } catch (error) {
-      console.error('Error opening chat:', error)
-      toast.error('Erro ao abrir chat')
+    } catch (err) {
+      console.error('Error opening chat:', err)
     }
   }
 
@@ -572,9 +563,12 @@ export default function KanbanBoard() {
                                       </div>
                                       <p className="font-bold text-foreground text-base line-clamp-1">{lead.name}</p>
                                       <button
-                                        onClick={(e) => handleChatClick(e, lead)}
-                                        className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 hover:scale-110 transition-all shadow-sm ml-auto"
-                                        title="Abrir Chat"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleQuickChat(lead.id.toString())
+                                        }}
+                                        className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 hover:scale-110 transition-all shadow-sm ml-auto z-50"
+                                        title="Chat"
                                       >
                                         <MessageCircle size={14} />
                                       </button>
