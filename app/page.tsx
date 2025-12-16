@@ -57,8 +57,6 @@ export default function KanbanBoard() {
 
   const handleQuickChat = async (leadId: string) => {
     try {
-      console.log('Starting chat for lead:', leadId)
-
       // 1. Check existing
       const { data: existing, error: findError } = await supabase
         .from('conversations')
@@ -67,7 +65,6 @@ export default function KanbanBoard() {
         .maybeSingle() // Use maybeSingle to avoid 406 errors
 
       if (findError) {
-        alert('Erro ao buscar chat: ' + findError.message)
         return
       }
 
@@ -84,7 +81,6 @@ export default function KanbanBoard() {
         .single()
 
       if (createError) {
-        alert('Erro ao criar chat: ' + createError.message)
         return
       }
 
@@ -92,7 +88,7 @@ export default function KanbanBoard() {
         window.location.href = `/chat?id=${newChat.id}`
       }
     } catch (err: any) {
-      alert('Erro Crítico: ' + err.message)
+      console.error('Error handling chat:', err)
     }
   }
 
@@ -575,14 +571,12 @@ export default function KanbanBoard() {
                                       </div>
                                       <p className="font-bold text-foreground text-base line-clamp-1">{lead.name}</p>
                                       <button
-                                        onPointerDown={(e) => e.stopPropagation()} // Stop drag immediately
+                                        onPointerDown={(e) => e.stopPropagation()}
                                         onMouseDown={(e) => e.stopPropagation()}
-                                        onClick={async (e) => {
+                                        onClick={(e) => {
                                           e.stopPropagation()
                                           e.preventDefault()
-                                          // ALERT 1: Prove the button works
-                                          // alert('Debug: Botão clicado! Iniciando...'); 
-                                          await handleQuickChat(lead.id.toString())
+                                          handleQuickChat(lead.id.toString())
                                         }}
                                         className="ml-2 p-1.5 rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 z-50 cursor-pointer transition-colors relative"
                                         title="Chat"
