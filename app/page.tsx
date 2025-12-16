@@ -629,6 +629,7 @@ export default function KanbanBoard() {
                                       className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sky-600 hover:bg-sky-200 hover:scale-110 transition-all shadow-sm"
                                       title="Abrir Chat"
                                     >
+                                      {/* Quick Chat Icon */}
                                       <MessageCircle size={16} />
                                     </button>
                                   </div>
