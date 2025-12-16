@@ -563,14 +563,17 @@ export default function KanbanBoard() {
                                       </div>
                                       <p className="font-bold text-foreground text-base line-clamp-1">{lead.name}</p>
                                       <button
+                                        onMouseDown={(e) => e.stopPropagation()}
                                         onClick={(e) => {
                                           e.stopPropagation()
+                                          e.preventDefault()
+                                          console.log('Chat button clicked for lead:', lead.id)
                                           handleQuickChat(lead.id.toString())
                                         }}
-                                        className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 hover:scale-110 transition-all shadow-sm ml-auto z-50"
-                                        title="Chat"
+                                        className="ml-2 p-1.5 rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 z-50 cursor-pointer relative transition-colors"
+                                        title="Abrir Chat WhatsApp"
                                       >
-                                        <MessageCircle size={14} />
+                                        <MessageCircle size={16} />
                                       </button>
                                     </div>
 
