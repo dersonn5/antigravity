@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MessageSquare } from 'lucide-react'
 
 import { useSidebar } from '@/context/SidebarContext'
 
@@ -152,10 +152,10 @@ export function Sidebar() {
                                 href="/chat"
                                 className={`flex items-center rounded-lg px-3 py-2 transition-colors ${pathname === '/chat' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:bg-emerald-800 hover:text-white'
                                     } ${isCollapsed ? 'justify-center' : 'gap-3'}`}
-                                title={isCollapsed ? 'Team Chat' : ''}
+                                title={isCollapsed ? 'Inbox' : ''}
                             >
-                                <span className="material-symbols-outlined text-lg">chat</span>
-                                {!isCollapsed && <span className="text-sm font-medium">Team Chat 💬</span>}
+                                <MessageSquare className="h-5 w-5" />
+                                {!isCollapsed && <span className="text-sm font-medium">Inbox</span>}
                             </Link>
                         </nav>
                     </div>
